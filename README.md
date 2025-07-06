@@ -2,37 +2,31 @@
 
 A modern, interactive web application for Caesar cipher encryption and decryption with a spy theme, user authentication, and gamification features.
 
-## ✨ Features
+##  Features
 
-- 🔐 **Multiple Cipher Algorithms** - Caesar, Vigenère, and Rail Fence ciphers
-- 👤 **User Authentication** - Secure signup/login system with database storage
-- 🖼️ **Profile Picture Management** - Upload custom images or choose from assets
-- 📱 **QR Code Generation** - Generate QR codes for encrypted messages
-- 📄 **PDF Export** - Export encrypted messages as PDF files
-- 🎮 **Gamification** - XP system with levels and achievements
-- 🎨 **Modern UI** - Dark/light/infrared themes with glassmorphism design
-- 🎤 **Voice Input** - Speech-to-text functionality
-- 📊 **Statistics Tracking** - Monitor encryption/decryption operations
-- 🔍 **Cipher Analysis Tools** - Frequency analysis, brute-force, pattern recognition
-- 🎨 **Advanced Theme Builder** - Custom colors and animated backgrounds
-- 📁 **Drag & Drop** - Batch file processing
-- ⌨️ **Keyboard Shortcuts** - Quick access to features
+-  **Multiple Cipher Algorithms** - Caesar, Vigenère, and Rail Fence ciphers
+-  **User Authentication** - Secure signup/login system with database storage
+-  **Profile Picture Management** - Upload custom images or choose from assets
+-  **QR Code Generation** - Generate QR codes for encrypted messages
+-  **PDF Export** - Export encrypted messages as PDF files
+-  **Gamification** - XP system with levels and achievements
+-  **Modern UI** - Dark/light/infrared themes with glassmorphism design
+-  **Voice Input** - Speech-to-text functionality
+-  **Statistics Tracking** - Monitor encryption/decryption operations
+-  **Cipher Analysis Tools** - Frequency analysis, brute-force, pattern recognition
+-  **Advanced Theme Builder** - Custom colors and animated backgrounds
+-  **Drag & Drop** - Batch file processing
+-  **Keyboard Shortcuts** - Quick access to features
 
-## 🚀 Live Demo
-
-- **Frontend:** [https://spy-mission-cipher.vercel.app](https://spy-mission-cipher.vercel.app)
-- **Backend:** [https://codespy-1.onrender.com](https://codespy-1.onrender.com)
-
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
 - **Backend:** Node.js, Express.js
 - **Database:** SQLite
 - **Authentication:** bcrypt
 - **File Upload:** Multer
-- **Deployment:** Vercel (Frontend), Render (Backend)
 
-## 📦 Installation
+##  Installation
 
 ### Prerequisites
 - Node.js (v14 or higher)
@@ -64,7 +58,7 @@ A modern, interactive web application for Caesar cipher encryption and decryptio
    - You'll be redirected to the login page
    - Create a new account or login with existing credentials
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 spy-mission-cipher/
@@ -87,7 +81,7 @@ spy-mission-cipher/
 └── DEPLOYMENT.md      # Detailed deployment guide
 ```
 
-## 🎯 How to Use
+##  How to Use
 
 ### Authentication
 1. **First Time Users**: Click "Create New Account" to register
@@ -112,7 +106,7 @@ spy-mission-cipher/
   - `Ctrl+D`: Decrypt
   - `Ctrl+C`: Copy output
 
-## 🔧 API Endpoints
+##  API Endpoints
 
 - `POST /api/signup` - User registration
 - `POST /api/login` - User authentication
@@ -120,11 +114,7 @@ spy-mission-cipher/
 - `GET /api/user/:id` - Get user information
 - `GET /api/health` - Health check
 
-## 🚀 Deployment
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions to Render and Vercel.
-
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -132,11 +122,11 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions to Rende
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Font Awesome for icons
 - Google Fonts for typography
@@ -144,7 +134,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - jsPDF for PDF generation
 - QRCode.js for QR code generation
 
-## 📞 Support
+##  Support
 
 If you encounter any issues:
 1. Check the troubleshooting section in DEPLOYMENT.md
