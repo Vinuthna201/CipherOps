@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spy Mission - Caesar Cipher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #00ff00;
+            --primary-dark: #00cc00;
+            --bg-dark: #0a0a0a;
+            --bg-light: #f8f9fa;
+            --bg-secondary-dark: #1a1a1a;
+            --bg-secondary-light: #ffffff;
+            --text-dark: #ffffff;
+            --text-light: #333333;
+            --glass-dark: rgba(26, 26, 26, 0.8);
+            --glass-light: rgba(255, 255, 255, 0.8);
+            --border-dark: #333333;
+            --border-light: #e0e0e0;
+            --shadow-dark: rgba(0, 255, 0, 0.2);
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="light"] {
+            --primary: #00aa00;
+            --bg-primary: var(--bg-light);
+            --bg-secondary: var(--bg-secondary-light);
+            --text: var(--text-light);
+            --glass: var(--glass-light);
+            --border: var(--border-light);
+            --shadow: var(--shadow-light);
+        }
+
+        [data-theme="dark"] {
+            --primary: #00ff00;
+            --bg-primary: var(--bg-dark);
+            --bg-secondary: var(--bg-secondary-dark);
+            --text: var(--text-dark);
+            --glass: var(--glass-dark);
+            --border: var(--border-dark);
+            --shadow: var(--shadow-dark);
+        }
+
+        [data-theme="infrared"] {
+            --primary: #ff0000;
+            --primary-dark: #cc0000;
+            --bg-primary: #0a0000;
+            --bg-secondary: #1a0000;
+            --text: #ffffff;
+            --glass: rgba(26, 0, 0, 0.8);
+            --border: #330000;
+            --shadow: rgba(255, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Page Loader */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-animation {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        [data-theme="infrared"] body::before {
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.15) 0%, transparent 50%);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Header */
+        .header {
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background: var(--glass);
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px var(--primary); }
+            to { text-shadow: 0 0 30px var(--primary), 0 0 40px var(--primary); }
+        }
+
+        /* Infrared theme specific animations */
+        [data-theme="infrared"] .header h1 {
+            animation: infraredGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes infraredGlow {
+            from { 
+                text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000;
+                color: #ff0000;
+            }
+            to { 
+                text-shadow: 0 0 30px #ff0000, 0 0 40px #ff0000, 0 0 50px #ff0000;
+                color: #ff4444;
+            }
+        }
+
+        .header p {
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Main Card */
+        .cipher-card {
+            background: var(--glass);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 30px var(--shadow);
+            backdrop-filter: blur(20px);
+            margin-bottom: 2rem;
+        }
+
+        /* Profile Picture Modal */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-card {
+            background: var(--glass);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+        }
+
+        .profile-card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .profile-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .asset-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .asset-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            object-fit: cover;
+        }
+
+        .asset-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .asset-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .upload-preview {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .upload-preview img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .profile-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .profile-info h3 {
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-info p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Input/Output Section */
+        .io-section {
+            margin-bottom: 2rem;
+        }
+
+        .io-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            color: var(--text);
+            padding: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .shift-input {
+            width: 80px;
+            height: 45px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            color: var(--text);
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+
+        .shift-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        /* Infrared theme button effects */
+        [data-theme="infrared"] .btn:hover {
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4), 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        [data-theme="infrared"] .theme-toggle:hover {
+            box-shadow: 0 0 20px #ff0000, 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--bg-primary);
+        }
+
+        /* Gamification */
+        .xp-section {
+            background: var(--glass);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .xp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .xp-title {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .xp-level {
+            background: var(--primary);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .xp-progress {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .xp-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transition: width 0.3s ease;
+        }
+
+        .xp-text {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat {
+            background: var(--glass);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .cipher-card {
+                padding: 1.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* New styles for drop zone */
+        .drop-zone {
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 1.5em;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+            background: var(--bg-secondary);
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
+
+        .drop-zone.drag-over {
+            background: var(--primary);
+            border-color: var(--primary-dark);
+            color: var(--bg-primary);
+        }
+
+        .drop-zone.drag-over i {
+            color: var(--bg-primary);
+        }
+
+        .custom-context-menu {
+            position: absolute;
+            z-index: 3000;
+            background: var(--glass);
+            border: 1.5px solid var(--primary);
+            border-radius: 10px;
+            box-shadow: 0 4px 16px var(--shadow);
+            min-width: 160px;
+            padding: 0.5em 0;
+            display: none;
+        }
+        .custom-context-menu .context-item {
+            padding: 0.7em 1.2em;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.15s;
+        }
+        .custom-context-menu .context-item:hover {
+            background: var(--primary);
+            color: var(--bg-primary);
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-animation" id="loaderAnimation"></div>
+            <div class="loader-text">Initializing Spy Mission...</div>
+        </div>
+    </div>
+
+    <!-- Profile Picture Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-card">
+            <h2>🖼️ Edit Profile Picture</h2>
+            <div class="profile-options">
+                <div class="option-section">
+                    <h3>Choose from Assets</h3>
+                    <div class="asset-images">
+                        <img src="assets/images/spy1.png" alt="Spy 1" class="asset-option" data-src="assets/images/spy1.png">
+                        <img src="assets/images/spy2.png" alt="Spy 2" class="asset-option" data-src="assets/images/spy2.png">
+                        <img src="assets/images/spy3.png" alt="Spy 3" class="asset-option" data-src="assets/images/spy3.png">
+                        <img src="assets/images/spy4.png" alt="Spy 4" class="asset-option" data-src="assets/images/spy4.png">
+                    </div>
+                </div>
+                <div class="option-section">
+                    <h3>Upload Your Own</h3>
+                    <input type="file" id="profileUpload" accept="image/*" style="display: none;">
+                    <button class="btn btn-secondary" onclick="document.getElementById('profileUpload').click()">
+                        <i class="fas fa-upload"></i> Choose File
+                    </button>
+                    <div id="uploadPreview" class="upload-preview" style="display: none;">
+                        <img id="previewImage" alt="Preview">
+                    </div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button class="btn" onclick="saveProfilePicture()">Save</button>
+                <button class="btn btn-secondary" onclick="closeProfileModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Builder Modal -->
+    <div class="profile-modal" id="themeModal" style="z-index:2000;">
+        <div class="profile-card" style="max-width:400px;">
+            <h2><i class="fas fa-paint-brush"></i> Theme Builder</h2>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+                <div>
+                    <label style="color:var(--primary);font-weight:600;">Primary Color</label>
+                    <input type="color" id="themePrimary" style="width:40px;height:40px;border:none;margin-left:1em;">
+                </div>
+                <div>
+                    <label style="color:var(--primary);font-weight:600;">Background Color</label>
+                    <input type="color" id="themeBg" style="width:40px;height:40px;border:none;margin-left:1em;">
+                </div>
+                <div>
+                    <label style="color:var(--primary);font-weight:600;">Text Color</label>
+                    <input type="color" id="themeText" style="width:40px;height:40px;border:none;margin-left:1em;">
+                </div>
+                <div>
+                    <label style="color:var(--primary);font-weight:600;">Animated Background</label>
+                    <input type="checkbox" id="themeAnimBg" style="margin-left:1em;transform:scale(1.3);">
+                </div>
+            </div>
+            <div class="profile-actions" style="margin-top:2em;">
+                <button class="btn" id="saveThemeBtn">Save</button>
+                <button class="btn btn-secondary" id="cancelThemeBtn">Cancel</button>
+                <button class="btn btn-secondary" id="resetThemeBtn">Reset</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="header">
+            <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </div>
+            <button class="btn btn-secondary" id="customThemeBtn" style="position:absolute;top:1rem;left:2rem;z-index:2;" title="Customize theme colors and background">
+                <i class="fas fa-paint-brush"></i> Customize Theme
+            </button>
+            <h1>🕵️ SPY MISSION</h1>
+            <p>Top Secret Caesar Cipher Encryption</p>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section" id="profileSection">
+            <img src="assets/images/spy1.png" alt="Agent Avatar" class="profile-avatar" id="profileAvatar">
+            <div class="profile-info">
+                <h3 id="agentName">Agent Unknown</h3>
+                <p id="agentEmail">agent@spyagency.com</p>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-secondary" onclick="openProfileModal()">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
+                <button class="btn btn-secondary" onclick="logout()" style="background: rgba(255, 0, 0, 0.1); border-color: #ff4444; color: #ff4444;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- XP Section -->
+        <div class="xp-section">
+            <div class="xp-header">
+                <div class="xp-title">🎯 Mission Progress</div>
+                <div class="xp-level" id="xpLevel">Level 1</div>
+            </div>
+            <div class="xp-progress">
+                <div class="xp-bar" id="xpBar" style="width: 0%"></div>
+            </div>
+            <div class="xp-text" id="xpText">0 / 100 XP</div>
+        </div>
+
+        <div class="cipher-card">
+            <div class="io-section">
+                <h3><i class="fas fa-keyboard"></i> Secret Message</h3>
+                <textarea id="input" placeholder="Enter your secret message here..."></textarea>
+                <div id="dropZone" class="drop-zone" style="margin:1em 0;padding:1.2em;border:2px dashed var(--primary);border-radius:12px;text-align:center;cursor:pointer;transition:background 0.2s;" title="Drag and drop a .txt file here for batch processing or click to browse.">
+                    <i class="fas fa-file-upload" style="font-size:1.3em;color:var(--primary);"></i>
+                    <span style="color:var(--text);margin-left:0.5em;">Drag & drop a text file here for batch encryption/decryption, or <span style="color:var(--primary);text-decoration:underline;cursor:pointer;" id="fileBrowse">browse</span></span>
+                    <input type="file" id="batchFileInput" accept=".txt" style="display:none;">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-small" id="voiceInput">
+                        <i class="fas fa-microphone"></i> Voice Input
+                    </button>
+                    <button class="btn btn-small" id="clearInput">
+                        <i class="fas fa-eraser"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <label for="cipherType" style="color: var(--primary);">Cipher:</label>
+                <select id="cipherType" class="shift-input" style="width: 140px;">
+                    <option value="caesar">Caesar</option>
+                    <option value="vigenere">Vigenère</option>
+                    <option value="railfence">Rail Fence</option>
+                </select>
+                <label for="shift" id="shiftLabel" style="color: var(--primary);">Shift:</label>
+                <input type="number" id="shift" class="shift-input" min="0" max="25" value="3">
+                <input type="text" id="vigenereKey" class="shift-input" placeholder="Keyword" style="display:none;width:120px;">
+                <input type="number" id="railfenceKey" class="shift-input" min="2" max="20" value="3" placeholder="Rails" style="display:none;width:80px;">
+                <button id="encrypt" class="btn" title="Encrypt your message (Ctrl+E)">
+                    <i class="fas fa-lock"></i> Encrypt
+                </button>
+                <button id="decrypt" class="btn" title="Decrypt your message (Ctrl+D)">
+                    <i class="fas fa-unlock"></i> Decrypt
+                </button>
+                <button id="reverse" class="btn btn-secondary" title="Reverse the message">
+                    <i class="fas fa-exchange-alt"></i> Reverse
+                </button>
+            </div>
+
+            <div class="io-section">
+                <h3><i class="fas fa-bullseye"></i> Result</h3>
+                <textarea id="output" readonly placeholder="Encrypted/Decrypted message will appear here..."></textarea>
+                <div id="outputContextMenu" class="custom-context-menu">
+                    <div class="context-item" id="contextCopy">Copy</div>
+                    <div class="context-item" id="contextDownload">Download as .txt</div>
+                </div>
+                <div class="action-buttons">
+                    <button id="copy" class="btn btn-small" title="Copy result to clipboard (Ctrl+C)">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button id="download" class="btn btn-small" title="Download result as .txt">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+
+                    <button id="exportPDF" class="btn btn-small" title="Export result as PDF">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="io-section">
+                <h3><i class="fas fa-search"></i> Cipher Analysis Tools</h3>
+                <div class="action-buttons">
+                    <button id="freqAnalysisBtn" class="btn btn-small" title="Analyze letter frequency in the message"><i class="fas fa-chart-bar"></i> Frequency Analysis</button>
+                    <button id="bruteForceBtn" class="btn btn-small" title="Try all Caesar shifts to decrypt"><i class="fas fa-bolt"></i> Brute-force Caesar</button>
+                    <button id="patternBtn" class="btn btn-small" title="Find repeated patterns in the message"><i class="fas fa-project-diagram"></i> Pattern Recognition</button>
+                </div>
+                <div id="analysisResult" class="cipher-analysis-result" style="margin-top:1rem;"></div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="encryptCount">0</div>
+                    <div class="stat-label">Messages Encrypted</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="decryptCount">0</div>
+                    <div class="stat-label">Messages Decrypted</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Total Operations</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="currentXP">0</div>
+                    <div class="stat-label">Current XP</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CaesarCipher {
+            static encrypt(text, shift) {
+                return text.split('').map(char => {
+                    if (char.match(/[a-z]/i)) {
+                        const code = char.charCodeAt(0);
+                        const base = code < 91 ? 65 : 97;
+                        return String.fromCharCode((code - base + shift) % 26 + base);
+                    }
+                    return char;
+                }).join('');
+            }
+
+            static decrypt(text, shift) {
+                return this.encrypt(text, 26 - shift);
+            }
+
+            static reverse(text) {
+                return text.split('').reverse().join('');
+            }
+        }
+
+        class SpyMissionApp {
+            constructor() {
+                this.currentUser = null;
+                this.xp = 0;
+                this.level = 1;
+                this.selectedProfilePicture = null;
+                this.API_BASE = window.location.hostname === 'localhost' 
+                    ? 'http://localhost:3000/api' 
+                    : '/api';
+
+                this.initializeElements();
+                this.bindEvents();
+                this.loadUser();
+                this.initializeTheme();
+                this.showPageLoader();
+            }
+
+            initializeElements() {
+                this.input = document.getElementById('input');
+                this.output = document.getElementById('output');
+                this.shift = document.getElementById('shift');
+                this.cipherTypeSelect = document.getElementById('cipherType');
+                this.vigenereKeyInput = document.getElementById('vigenereKey');
+                this.railfenceKeyInput = document.getElementById('railfenceKey');
+                this.encryptBtn = document.getElementById('encrypt');
+                this.decryptBtn = document.getElementById('decrypt');
+                this.reverseBtn = document.getElementById('reverse');
+                this.copyBtn = document.getElementById('copy');
+                this.voiceInputBtn = document.getElementById('voiceInput');
+                this.clearInputBtn = document.getElementById('clearInput');
+                this.downloadBtn = document.getElementById('download');
+
+                this.exportPDFBtn = document.getElementById('exportPDF');
+                this.encryptCount = document.getElementById('encryptCount');
+                this.decryptCount = document.getElementById('decryptCount');
+                this.totalCount = document.getElementById('totalCount');
+                this.currentXP = document.getElementById('currentXP');
+                this.xpBar = document.getElementById('xpBar');
+                this.xpText = document.getElementById('xpText');
+                this.xpLevel = document.getElementById('xpLevel');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.profileModal = document.getElementById('profileModal');
+                this.pageLoader = document.getElementById('pageLoader');
+                this.profileAvatar = document.getElementById('profileAvatar');
+
+                // Theme builder
+                this.customThemeBtn = document.getElementById('customThemeBtn');
+                this.themeModal = document.getElementById('themeModal');
+                this.themePrimary = document.getElementById('themePrimary');
+                this.themeBg = document.getElementById('themeBg');
+                this.themeText = document.getElementById('themeText');
+                this.themeAnimBg = document.getElementById('themeAnimBg');
+                this.saveThemeBtn = document.getElementById('saveThemeBtn');
+                this.cancelThemeBtn = document.getElementById('cancelThemeBtn');
+                this.resetThemeBtn = document.getElementById('resetThemeBtn');
+
+                // Drop zone elements
+                this.dropZone = document.getElementById('dropZone');
+                this.batchFileInput = document.getElementById('batchFileInput');
+                this.fileBrowseLink = document.getElementById('fileBrowse');
+
+                // Context menu elements
+                this.outputContextMenu = document.getElementById('outputContextMenu');
+                this.contextCopy = document.getElementById('contextCopy');
+                this.contextDownload = document.getElementById('contextDownload');
+            }
+
+            bindEvents() {
+                this.encryptBtn.addEventListener('click', () => this.handleOperation('encrypt'));
+                this.decryptBtn.addEventListener('click', () => this.handleOperation('decrypt'));
+                this.reverseBtn.addEventListener('click', () => this.handleOperation('reverse'));
+                this.copyBtn.addEventListener('click', () => this.copyToClipboard());
+                this.voiceInputBtn.addEventListener('click', () => this.startVoiceInput());
+                this.clearInputBtn.addEventListener('click', () => this.clearInput());
+                this.downloadBtn.addEventListener('click', () => this.downloadResult());
+
+                this.exportPDFBtn.addEventListener('click', () => this.exportPDF());
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Profile picture modal events
+                document.querySelectorAll('.asset-option').forEach(option => {
+                    option.addEventListener('click', () => this.selectAssetImage(option));
+                });
+                document.getElementById('profileUpload').addEventListener('change', (e) => this.handleFileUpload(e));
+
+                // Cipher type selection
+                this.cipherTypeSelect.addEventListener('change', () => this.updateCipherControls());
+                this.updateCipherControls(); // Initial call to set correct inputs
+
+                // Cipher Analysis Tools
+                document.getElementById('freqAnalysisBtn').addEventListener('click', () => this.frequencyAnalysis());
+                document.getElementById('bruteForceBtn').addEventListener('click', () => this.bruteForceCaesar());
+                document.getElementById('patternBtn').addEventListener('click', () => this.patternRecognition());
+
+                // Theme builder events
+                this.customThemeBtn.addEventListener('click', () => this.openThemeModal());
+                this.cancelThemeBtn.addEventListener('click', () => this.closeThemeModal());
+                this.saveThemeBtn.addEventListener('click', () => this.saveCustomTheme());
+                this.resetThemeBtn.addEventListener('click', () => this.resetCustomTheme());
+
+                // Drop zone events
+                this.dropZone.addEventListener('dragover', (e) => this.handleDragOver(e));
+                this.dropZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                this.dropZone.addEventListener('drop', (e) => this.handleDrop(e));
+                this.batchFileInput.addEventListener('change', (e) => this.handleBatchFileInput(e));
+                this.fileBrowseLink.addEventListener('click', () => this.openFileInput());
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+                        if (e.code === 'KeyE') {
+                            e.preventDefault();
+                            this.encryptBtn.click();
+                        } else if (e.code === 'KeyD') {
+                            e.preventDefault();
+                            this.decryptBtn.click();
+                        } else if (e.code === 'KeyC') {
+                            // Only copy if output is focused or no input/textarea is focused
+                            const active = document.activeElement;
+                            if (active === this.output || (active.tagName !== 'INPUT' && active.tagName !== 'TEXTAREA')) {
+                                e.preventDefault();
+                                this.copyBtn.click();
+                            }
+                        }
+                    }
+                });
+
+                // Context menu for output
+                this.output.addEventListener('contextmenu', (e) => this.showOutputContextMenu(e));
+                document.addEventListener('click', (e) => this.hideOutputContextMenu(e));
+                this.contextCopy.addEventListener('click', () => { this.copyToClipboard(); this.hideOutputContextMenu(); });
+                this.contextDownload.addEventListener('click', () => { this.downloadResult(); this.hideOutputContextMenu(); });
+            }
+
+            showPageLoader() {
+                // Simulate loading time
+                setTimeout(() => {
+                    this.pageLoader.style.opacity = '0';
+                    setTimeout(() => {
+                        this.pageLoader.style.display = 'none';
+                        this.checkAuthentication();
+                    }, 500);
+                }, 2000);
+            }
+
+            checkAuthentication() {
+                const token = localStorage.getItem('spyMissionToken');
+                const user = localStorage.getItem('spyMissionUser');
+                
+                if (!token || !user) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                this.currentUser = JSON.parse(user);
+                this.updateProfile();
+                this.loadStats(); // Load user-specific stats after user is set
+            }
+
+            updateProfile() {
+                if (this.currentUser) {
+                    document.getElementById('agentName').textContent = this.currentUser.username || this.currentUser.name;
+                    document.getElementById('agentEmail').textContent = this.currentUser.email;
+                    
+                    // Update profile picture if available
+                    if (this.currentUser.profile_picture) {
+                        this.profileAvatar.src = this.currentUser.profile_picture;
+                    }
+                }
+            }
+
+            initializeTheme() {
+                const savedTheme = localStorage.getItem('spyMissionTheme') || 'dark';
+                // Ensure the theme is valid
+                const validThemes = ['dark', 'light', 'infrared'];
+                const theme = validThemes.includes(savedTheme) ? savedTheme : 'dark';
+                document.body.setAttribute('data-theme', theme);
+                this.updateThemeIcon(theme);
+                // Apply custom theme if exists
+                const custom = JSON.parse(localStorage.getItem('spyMissionCustomTheme') || '{}');
+                if (custom && (custom.primary || custom.bg || custom.text)) {
+                    this.applyCustomTheme(custom);
+                } else {
+                    this.toggleAnimatedBg(true);
+                }
+            }
+
+            toggleTheme() {
+                const currentTheme = document.body.getAttribute('data-theme');
+                let newTheme;
+                
+                // Cycle through themes: dark -> light -> infrared -> dark
+                switch (currentTheme) {
+                    case 'dark':
+                        newTheme = 'light';
+                        break;
+                    case 'light':
+                        newTheme = 'infrared';
+                        break;
+                    case 'infrared':
+                        newTheme = 'dark';
+                        break;
+                    default:
+                        newTheme = 'dark';
+                }
+                
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('spyMissionTheme', newTheme);
+                this.updateThemeIcon(newTheme);
+            }
+
+            updateThemeIcon(theme) {
+                const icon = this.themeToggle.querySelector('i');
+                switch (theme) {
+                    case 'dark':
+                        icon.className = 'fas fa-sun';
+                        break;
+                    case 'light':
+                        icon.className = 'fas fa-moon';
+                        break;
+                    case 'infrared':
+                        icon.className = 'fas fa-eye';
+                        break;
+                    default:
+                        icon.className = 'fas fa-sun';
+                }
+            }
+
+            handleOperation(type) {
+                const text = this.input.value.trim();
+                if (!text) {
+                    alert('Please enter a message first!');
+                    return;
+                }
+
+                let shift = parseInt(this.shift.value) || 3;
+                let key = this.vigenereKeyInput.value.trim();
+                let railfenceKey = parseInt(this.railfenceKeyInput.value) || 3;
+
+                let result;
+
+                switch (type) {
+                    case 'encrypt':
+                        if (this.cipherTypeSelect.value === 'caesar') {
+                            result = CaesarCipher.encrypt(text, shift);
+                        } else if (this.cipherTypeSelect.value === 'vigenere') {
+                            result = this.vigenereEncrypt(text, key);
+                        } else if (this.cipherTypeSelect.value === 'railfence') {
+                            result = this.railfenceEncrypt(text, railfenceKey);
+                        }
+                        this.updateStats('encrypt');
+                        this.addXP(10);
+                        break;
+                    case 'decrypt':
+                        if (this.cipherTypeSelect.value === 'caesar') {
+                            result = CaesarCipher.decrypt(text, shift);
+                        } else if (this.cipherTypeSelect.value === 'vigenere') {
+                            result = this.vigenereDecrypt(text, key);
+                        } else if (this.cipherTypeSelect.value === 'railfence') {
+                            result = this.railfenceDecrypt(text, railfenceKey);
+                        }
+                        this.updateStats('decrypt');
+                        this.addXP(10);
+                        break;
+                    case 'reverse':
+                        result = CaesarCipher.reverse(text);
+                        this.updateStats('reverse');
+                        this.addXP(5);
+                        break;
+                }
+
+                this.typeOutput(result);
+            }
+
+            typeOutput(text) {
+                this.output.value = '';
+                let i = 0;
+                const interval = setInterval(() => {
+                    this.output.value += text[i];
+                    i++;
+                    if (i >= text.length) {
+                        clearInterval(interval);
+                    }
+                }, 30);
+            }
+
+            addXP(amount) {
+                this.xp += amount;
+                const xpNeeded = this.level * 100;
+                
+                if (this.xp >= xpNeeded) {
+                    this.level++;
+                    this.xp = 0;
+                    this.showLevelUp();
+                }
+
+                this.updateXPDisplay();
+                this.saveStats();
+            }
+
+            updateXPDisplay() {
+                const xpNeeded = this.level * 100;
+                const percentage = (this.xp / xpNeeded) * 100;
+                
+                this.xpBar.style.width = percentage + '%';
+                this.xpText.textContent = `${this.xp} / ${xpNeeded} XP`;
+                this.xpLevel.textContent = `Level ${this.level}`;
+                this.currentXP.textContent = this.xp;
+            }
+
+            showLevelUp() {
+                const achievements = [
+                    'Rookie Spy', 'Cipher Novice', 'Code Breaker', 
+                    'Cipher Ninja', 'Master Spy', 'Legendary Agent'
+                ];
+                const achievement = achievements[Math.min(this.level - 1, achievements.length - 1)];
+                
+                alert(`🎉 Level Up! You are now a ${achievement}!`);
+            }
+
+            startVoiceInput() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+                    
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    recognition.onstart = () => {
+                        this.voiceInputBtn.innerHTML = '<i class="fas fa-microphone-slash"></i> Listening...';
+                        this.voiceInputBtn.style.background = '#ff4444';
+                    };
+
+                    recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.input.value = transcript;
+                        this.voiceInputBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice Input';
+                        this.voiceInputBtn.style.background = '';
+                    };
+
+                    recognition.onerror = () => {
+                        this.voiceInputBtn.innerHTML = '<i class="fas fa-microphone"></i> Voice Input';
+                        this.voiceInputBtn.style.background = '';
+                        alert('Voice recognition failed. Please try again.');
+                    };
+
+                    recognition.start();
+                } else {
+                    alert('Voice recognition is not supported in your browser.');
+                }
+            }
+
+            clearInput() {
+                this.input.value = '';
+                this.output.value = '';
+            }
+
+            copyToClipboard() {
+                if (!this.output.value) {
+                    alert('Nothing to copy!');
+                    return;
+                }
+
+                navigator.clipboard.writeText(this.output.value).then(() => {
+                    const originalText = this.copyBtn.innerHTML;
+                    this.copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    this.copyBtn.style.background = '#00cc00';
+                    
+                    setTimeout(() => {
+                        this.copyBtn.innerHTML = originalText;
+                        this.copyBtn.style.background = '';
+                    }, 2000);
+                });
+            }
+
+            downloadResult() {
+                if (!this.output.value) {
+                    alert('Nothing to download!');
+                    return;
+                }
+
+                const blob = new Blob([this.output.value], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'encrypted_message.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+
+
+            exportPDF() {
+                if (!this.output.value) {
+                    alert('Nothing to export!');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(20);
+                doc.text('Spy Mission - Encrypted Message', 20, 20);
+                
+                doc.setFontSize(12);
+                doc.text('Original Message:', 20, 40);
+                doc.setFontSize(10);
+                doc.text(this.input.value, 20, 50);
+                
+                doc.setFontSize(12);
+                doc.text('Encrypted Message:', 20, 80);
+                doc.setFontSize(10);
+                doc.text(this.output.value, 20, 90);
+                
+                doc.setFontSize(10);
+                doc.text(`Shift: ${this.shift.value}`, 20, 120);
+                doc.text(`Generated by: ${this.currentUser?.name || 'Unknown Agent'}`, 20, 130);
+                doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 140);
+                
+                doc.save('spy_mission_encryption.pdf');
+            }
+
+            updateStats(operation) {
+                let encryptCount = parseInt(this.encryptCount.textContent);
+                let decryptCount = parseInt(this.decryptCount.textContent);
+
+                if (operation === 'encrypt' || operation === 'reverse') {
+                    encryptCount++;
+                    this.encryptCount.textContent = encryptCount;
+                } else if (operation === 'decrypt') {
+                    decryptCount++;
+                    this.decryptCount.textContent = decryptCount;
+                }
+
+                const total = encryptCount + decryptCount;
+                this.totalCount.textContent = total;
+                this.saveStats();
+            }
+
+            saveStats() {
+                if (!this.currentUser || !this.currentUser.id) {
+                    return;
+                }
+                
+                const stats = {
+                    encrypt: this.encryptCount.textContent,
+                    decrypt: this.decryptCount.textContent,
+                    total: this.totalCount.textContent,
+                    xp: this.xp,
+                    level: this.level
+                };
+                localStorage.setItem(`spyMissionStats_${this.currentUser.id}`, JSON.stringify(stats));
+            }
+
+            loadStats() {
+                if (!this.currentUser || !this.currentUser.id) {
+                    return;
+                }
+                
+                const saved = localStorage.getItem(`spyMissionStats_${this.currentUser.id}`);
+                
+                if (saved) {
+                    const stats = JSON.parse(saved);
+                    this.encryptCount.textContent = stats.encrypt || 0;
+                    this.decryptCount.textContent = stats.decrypt || 0;
+                    this.totalCount.textContent = stats.total || 0;
+                    this.xp = stats.xp || 0;
+                    this.level = stats.level || 1;
+                    this.updateXPDisplay();
+                } else {
+                    // Reset stats for new user
+                    this.resetStats();
+                }
+            }
+
+            resetStats() {
+                this.encryptCount.textContent = '0';
+                this.decryptCount.textContent = '0';
+                this.totalCount.textContent = '0';
+                this.xp = 0;
+                this.level = 1;
+                this.updateXPDisplay();
+            }
+
+            loadUser() {
+                const user = localStorage.getItem('spyMissionUser');
+                if (user) {
+                    this.currentUser = JSON.parse(user);
+                }
+            }
+
+            selectAssetImage(option) {
+                // Remove previous selection
+                document.querySelectorAll('.asset-option').forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selection to clicked option
+                option.classList.add('selected');
+                this.selectedProfilePicture = option.dataset.src;
+                
+                // Hide upload preview
+                document.getElementById('uploadPreview').style.display = 'none';
+            }
+
+            handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                // Remove asset selection
+                document.querySelectorAll('.asset-option').forEach(opt => opt.classList.remove('selected'));
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('previewImage');
+                    const previewContainer = document.getElementById('uploadPreview');
+                    
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    this.selectedProfilePicture = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async saveProfilePicture() {
+                if (!this.selectedProfilePicture) {
+                    alert('Please select or upload a profile picture');
+                    return;
+                }
+
+                try {
+                    let profilePicturePath = this.selectedProfilePicture;
+
+                    // If it's a data URL (uploaded file), upload to server
+                    if (this.selectedProfilePicture.startsWith('data:')) {
+                        const formData = new FormData();
+                        const blob = await fetch(this.selectedProfilePicture).then(r => r.blob());
+                        formData.append('profilePicture', blob, 'profile.jpg');
+                        formData.append('userId', this.currentUser.id);
+
+                        const response = await fetch(`${this.API_BASE}/upload-profile-picture`, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to upload profile picture');
+                        }
+
+                        const data = await response.json();
+                        profilePicturePath = data.profilePicture;
+                    }
+
+                    // Update local storage
+                    this.currentUser.profile_picture = profilePicturePath;
+                    localStorage.setItem('spyMissionUser', JSON.stringify(this.currentUser));
+
+                    // Update display
+                    this.profileAvatar.src = profilePicturePath;
+                    this.closeProfileModal();
+
+                    alert('Profile picture updated successfully!');
+                } catch (error) {
+                    console.error('Error saving profile picture:', error);
+                    alert('Failed to save profile picture. Please try again.');
+                }
+            }
+
+            closeProfileModal() {
+                this.profileModal.style.display = 'none';
+                this.selectedProfilePicture = null;
+                
+                // Reset selections
+                document.querySelectorAll('.asset-option').forEach(opt => opt.classList.remove('selected'));
+                document.getElementById('uploadPreview').style.display = 'none';
+                document.getElementById('profileUpload').value = '';
+            }
+
+            updateCipherControls() {
+                const cipherType = this.cipherTypeSelect.value;
+                this.shift.style.display = 'block';
+                this.vigenereKeyInput.style.display = 'none';
+                this.railfenceKeyInput.style.display = 'none';
+
+                if (cipherType === 'vigenere') {
+                    this.shift.style.display = 'none';
+                    this.vigenereKeyInput.style.display = 'block';
+                    this.vigenereKeyInput.value = ''; // Clear previous key
+                } else if (cipherType === 'railfence') {
+                    this.shift.style.display = 'none';
+                    this.railfenceKeyInput.style.display = 'block';
+                    this.railfenceKeyInput.value = ''; // Clear previous key
+                }
+            }
+
+            vigenereEncrypt(text, key) {
+                if (!key) {
+                    alert('Please enter a keyword for Vigenère cipher.');
+                    return text;
+                }
+                key = key.toLowerCase();
+                let encrypted = '';
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (char.match(/[a-z]/i)) {
+                        const charCode = char.charCodeAt(0);
+                        const keyCharCode = key.charCodeAt(i % key.length);
+                        const base = charCode < 91 ? 65 : 97;
+                        encrypted += String.fromCharCode((charCode - base + keyCharCode - 97) % 26 + base);
+                    } else {
+                        encrypted += char;
+                    }
+                }
+                return encrypted;
+            }
+
+            vigenereDecrypt(text, key) {
+                if (!key) {
+                    alert('Please enter a keyword for Vigenère cipher.');
+                    return text;
+                }
+                key = key.toLowerCase();
+                let decrypted = '';
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (char.match(/[a-z]/i)) {
+                        const charCode = char.charCodeAt(0);
+                        const keyCharCode = key.charCodeAt(i % key.length);
+                        const base = charCode < 91 ? 65 : 97;
+                        decrypted += String.fromCharCode((charCode - base - (keyCharCode - 97) + 26) % 26 + base);
+                    } else {
+                        decrypted += char;
+                    }
+                }
+                return decrypted;
+            }
+
+            railfenceEncrypt(text, rails) {
+                if (rails < 2) {
+                    alert('Rail Fence key must be at least 2.');
+                    return text;
+                }
+                let railMatrix = [];
+                for (let i = 0; i < rails; i++) {
+                    railMatrix.push([]);
+                }
+
+                let rail = 0;
+                let direction = 1;
+
+                for (let i = 0; i < text.length; i++) {
+                    railMatrix[rail].push(text[i]);
+                    rail += direction;
+                    if (rail === 0 || rail === rails - 1) {
+                        direction *= -1;
+                    }
+                }
+
+                let encrypted = '';
+                for (let i = 0; i < rails; i++) {
+                    encrypted += railMatrix[i].join('');
+                }
+                return encrypted;
+            }
+
+            railfenceDecrypt(text, rails) {
+                if (rails < 2) {
+                    alert('Rail Fence key must be at least 2.');
+                    return text;
+                }
+                let railMatrix = [];
+                for (let i = 0; i < rails; i++) {
+                    railMatrix.push([]);
+                }
+
+                let rail = 0;
+                let direction = 1;
+
+                for (let i = 0; i < text.length; i++) {
+                    railMatrix[rail].push(null); // Placeholder for character
+                    rail += direction;
+                    if (rail === 0 || rail === rails - 1) {
+                        direction *= -1;
+                    }
+                }
+
+                let index = 0;
+                for (let i = 0; i < rails; i++) {
+                    for (let j = 0; j < railMatrix[i].length; j++) {
+                        if (railMatrix[i][j] === null) {
+                            railMatrix[i][j] = text[index++];
+                        }
+                    }
+                }
+
+                let decrypted = '';
+                rail = 0;
+                direction = 1;
+                for (let i = 0; i < text.length; i++) {
+                    decrypted += railMatrix[rail][i];
+                    rail += direction;
+                    if (rail === 0 || rail === rails - 1) {
+                        direction *= -1;
+                    }
+                }
+                return decrypted;
+            }
+
+            frequencyAnalysis() {
+                const text = this.output.value || this.input.value;
+                if (!text) {
+                    alert('Please enter or generate a message first!');
+                    return;
+                }
+                const freq = {};
+                for (let char of text.toUpperCase()) {
+                    if (char >= 'A' && char <= 'Z') {
+                        freq[char] = (freq[char] || 0) + 1;
+                    }
+                }
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+                let max = Math.max(...Object.values(freq), 1);
+                let html = '<div style="display:flex;gap:4px;align-items:flex-end;height:120px;margin-bottom:8px;">';
+                for (let letter of letters) {
+                    const val = freq[letter] || 0;
+                    const barHeight = (val / max) * 100;
+                    html += `<div style="width:18px;text-align:center;">
+                        <div style="background:var(--primary);height:${barHeight}px;width:100%;border-radius:4px 4px 0 0;"></div>
+                        <div style="font-size:0.8em;color:var(--text);">${letter}</div>
+                        <div style="font-size:0.8em;color:var(--primary);">${val}</div>
+                    </div>`;
+                }
+                html += '</div>';
+                document.getElementById('analysisResult').innerHTML = html;
+            }
+
+            bruteForceCaesar() {
+                const text = this.output.value || this.input.value;
+                if (!text) {
+                    alert('Please enter or generate a message first!');
+                    return;
+                }
+                let html = '<div style="max-height:200px;overflow:auto;"><table style="width:100%;border-collapse:collapse;">';
+                html += '<tr><th style="color:var(--primary);">Shift</th><th style="color:var(--primary);">Decryption</th></tr>';
+                for (let shift = 1; shift < 26; shift++) {
+                    const decrypted = CaesarCipher.decrypt(text, shift);
+                    html += `<tr><td style="color:var(--primary);text-align:center;">${shift}</td><td style="color:var(--text);padding-left:8px;">${decrypted}</td></tr>`;
+                }
+                html += '</table></div>';
+                document.getElementById('analysisResult').innerHTML = html;
+            }
+
+            patternRecognition() {
+                const text = this.output.value || this.input.value;
+                if (!text) {
+                    alert('Please enter or generate a message first!');
+                    return;
+                }
+                // Find repeated substrings of length >= 2
+                const patterns = {};
+                for (let len = 2; len <= Math.min(6, text.length / 2); len++) {
+                    for (let i = 0; i <= text.length - len; i++) {
+                        const substr = text.substr(i, len);
+                        if (!patterns[substr]) {
+                            const count = (text.match(new RegExp(substr.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g')) || []).length;
+                            if (count > 1) patterns[substr] = count;
+                        }
+                    }
+                }
+                let html = '<div style="color:var(--text);">';
+                if (Object.keys(patterns).length === 0) {
+                    html += 'No repeated patterns found.';
+                } else {
+                    html += '<b>Repeated Patterns:</b><ul style="margin:0 0 0 1em;">';
+                    for (let pat in patterns) {
+                        html += `<li><span style="color:var(--primary);font-weight:bold;">${pat}</span> &times; ${patterns[pat]}</li>`;
+                    }
+                    html += '</ul>';
+                }
+                html += '</div>';
+                document.getElementById('analysisResult').innerHTML = html;
+            }
+
+            openThemeModal() {
+                // Load current or saved theme
+                const custom = JSON.parse(localStorage.getItem('spyMissionCustomTheme') || '{}');
+                this.themePrimary.value = custom.primary || getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#00ff00';
+                this.themeBg.value = custom.bg || getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim() || '#0a0a0a';
+                this.themeText.value = custom.text || getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#ffffff';
+                this.themeAnimBg.checked = custom.animBg !== false;
+                this.themeModal.style.display = 'flex';
+            }
+
+            closeThemeModal() {
+                this.themeModal.style.display = 'none';
+            }
+
+            saveCustomTheme() {
+                const custom = {
+                    primary: this.themePrimary.value,
+                    bg: this.themeBg.value,
+                    text: this.themeText.value,
+                    animBg: this.themeAnimBg.checked
+                };
+                localStorage.setItem('spyMissionCustomTheme', JSON.stringify(custom));
+                this.applyCustomTheme(custom);
+                this.closeThemeModal();
+            }
+
+            resetCustomTheme() {
+                localStorage.removeItem('spyMissionCustomTheme');
+                this.applyCustomTheme(null);
+                this.closeThemeModal();
+            }
+
+            applyCustomTheme(custom) {
+                if (!custom) {
+                    // Reset to theme
+                    this.initializeTheme();
+                    this.toggleAnimatedBg(true);
+                    return;
+                }
+                document.documentElement.style.setProperty('--primary', custom.primary);
+                document.documentElement.style.setProperty('--primary-dark', custom.primary);
+                document.documentElement.style.setProperty('--bg-primary', custom.bg);
+                document.documentElement.style.setProperty('--text', custom.text);
+                document.body.style.background = custom.bg;
+                this.toggleAnimatedBg(custom.animBg);
+            }
+
+            toggleAnimatedBg(enable) {
+                if (enable) {
+                    document.body.classList.remove('no-anim-bg');
+                } else {
+                    document.body.classList.add('no-anim-bg');
+                }
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                this.dropZone.classList.add('drag-over');
+            }
+
+            handleDragLeave(e) {
+                this.dropZone.classList.remove('drag-over');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.dropZone.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type === 'text/plain') {
+                    this.handleBatchFileInput(file);
+                } else {
+                    alert('Please drop a text file (.txt) for batch processing.');
+                }
+            }
+
+            handleBatchFileInput(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    this.input.value = text;
+                    alert(`File content loaded. You can now encrypt/decrypt the entire file.`);
+                };
+                reader.readAsText(file);
+            }
+
+            openFileInput() {
+                this.batchFileInput.click();
+            }
+
+            showOutputContextMenu(e) {
+                e.preventDefault();
+                const menu = this.outputContextMenu;
+                menu.style.display = 'block';
+                menu.style.left = e.pageX + 'px';
+                menu.style.top = e.pageY + 'px';
+            }
+
+            hideOutputContextMenu(e) {
+                const menu = this.outputContextMenu;
+                if (!e || !menu.contains(e.target)) {
+                    menu.style.display = 'none';
+                }
+            }
+        }
+
+        // Global functions
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        function saveProfilePicture() {
+            app.saveProfilePicture();
+        }
+
+        function closeProfileModal() {
+            app.closeProfileModal();
+        }
+
+        function logout() {
+            localStorage.removeItem('spyMissionToken');
+            localStorage.removeItem('spyMissionUser');
+            window.location.href = '/login';
+        }
+
+        // Initialize the app
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new SpyMissionApp();
+        });
+    </script>
+</body>
+</html>
