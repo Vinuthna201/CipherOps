@@ -7,7 +7,6 @@ A modern, interactive web application for Caesar cipher encryption and decryptio
 -  **Multiple Cipher Algorithms** - Caesar, Vigenère, and Rail Fence ciphers
 -  **User Authentication** - Secure signup/login system with database storage
 -  **Profile Picture Management** - Upload custom images or choose from assets
--  **QR Code Generation** - Generate QR codes for encrypted messages
 -  **PDF Export** - Export encrypted messages as PDF files
 -  **Gamification** - XP system with levels and achievements
 -  **Modern UI** - Dark/light/infrared themes with glassmorphism design
@@ -132,7 +131,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Google Fonts for typography
 - Lottie for animations
 - jsPDF for PDF generation
-- QRCode.js for QR code generation
 
 ##  Support
 
